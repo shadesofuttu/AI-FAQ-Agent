@@ -7,6 +7,10 @@ from sentence_transformers.util import cos_sim
 # Load data
 model = SentenceTransformer("all-MiniLM-L6-v2")
 
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = []
+
+
 uploaded_file = st.file_uploader(
     "Upload your FAQ CSV",
     type=["csv"]
@@ -36,6 +40,13 @@ if uploaded_file is not None:
 
         answer = faq.iloc[best_match_index]["answer"]
 
+        st.session_state.chat_history.append(
+     {
+        "question": user_question,
+        "answer": answer
+     }
+)
+
         confidence = scores[best_match_index].item()
 
         if confidence < 0.5:
@@ -44,5 +55,12 @@ if uploaded_file is not None:
             st.success(answer)
             st.write(f"Confidence Score: {confidence:.2f}")
 
+st.subheader("Chat History")
+
+for chat in st.session_state.chat_history:
+
+    st.write(f"🧑 You: {chat['question']}")
+    st.write(f"🤖 Bot: {chat['answer']}")
+       
 else:
     st.info("Please upload a FAQ CSV file to begin.")
