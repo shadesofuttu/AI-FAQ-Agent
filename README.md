@@ -1,60 +1,41 @@
-# AI FAQ Agent 🤖
+# AI FAQ Agent
 
-An AI-powered FAQ chatbot built using Python, Pandas, Streamlit, and Sentence Transformers.
+An AI-powered FAQ chatbot built using Python, Streamlit, Pandas, and Sentence Transformers.
 
 ## Features
 
-* Semantic Search using Sentence Transformers
-* FAQ Retrieval from CSV Dataset
-* Confidence Score for Answer Validation
-* Streamlit Web Interface
-* Handles similar questions even when wording is different
+- Semantic Search using Sentence Transformers
+- Confidence Score Filtering
+- CSV Upload Support
+- Chat History
+- Streamlit Web Interface
+- Cached Model Loading for Faster Performance
 
-## Example
+## Tech Stack
 
-User Question:
+- Python
+- Streamlit
+- Pandas
+- Sentence Transformers
+- Git & GitHub
 
-When do you open?
+## How It Works
 
-Agent Response:
+1. Upload a FAQ CSV file.
+2. Ask a question.
+3. The question is converted into embeddings.
+4. Cosine similarity finds the closest FAQ.
+5. The answer is returned if confidence is above the threshold.
 
-We are open from 9 AM to 6 PM.
+## Example Questions
 
-## Technologies Used
-
-* Python
-* Pandas
-* Streamlit
-* Sentence Transformers
-* Cosine Similarity
-
-## How to Run
-
-1. Clone the repository
-
-```bash
-git clone <repository-url>
-```
-
-2. Install dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-3. Run the application
-
-```bash
-streamlit run app.py
-```
+- Shipping time?
+- Money back?
+- Contact support?
 
 ## Future Improvements
 
-* Upload Custom FAQ CSV
-* Chat History
-* Gemini API Integration
-* Deployment
-
-## Author
-
-Utkarsh
+- Gemini Integration
+- Better UI
+- Deployment
+- Database Support
