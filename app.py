@@ -2,202 +2,186 @@ import os
 import streamlit as st
 import pandas as pd
 from dotenv import load_dotenv
+
 from sentence_transformers import SentenceTransformer
 from sentence_transformers.util import cos_sim
+
 import google.generativeai as genai
+
+
 # GEMINI CONFIG
 
 load_dotenv()
 
-genai.configure(
-    api_key=os.getenv("GEMINI_API_KEY")
-)
-gemini_model = genai.GenerativeModel(
-    "gemini-2.5-flash"
-)
+api_key = os.getenv("GEMINI_API_KEY")
+
+gemini_enabled = False
+
+if api_key:
+    genai.configure(api_key=api_key)
+
+    gemini_model = genai.GenerativeModel(
+        "gemini-2.5-flash"
+    )
+
+    gemini_enabled = True
+
+
 # SIDEBAR
 
+
 st.sidebar.title("🤖 AI FAQ Agent")
+
 st.sidebar.write(
-    "Upload a FAQ CSV and ask questions."
+    "Ask questions about the FAQ dataset."
 )
 
 if st.sidebar.button("🗑 Clear Chat"):
     st.session_state.chat_history = []
     st.rerun()
+
 # SESSION STATE
 
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
-# CACHING
 
+# CACHING
 @st.cache_resource
 def load_model():
     return SentenceTransformer(
         "all-MiniLM-L6-v2"
     )
+
+
 model = load_model()
+
 
 @st.cache_data
 def create_embeddings(questions):
     return model.encode(questions)
 
-# FILE UPLOAD
 
-uploaded_file = st.file_uploader(
-    "Upload your FAQ CSV",
-    type=["csv"]
+# LOAD FAQ DATA
+
+faq = pd.read_csv("faq.csv")
+
+faq_questions = faq["question"].tolist()
+
+faq_embeddings = create_embeddings(
+    faq_questions
 )
 
-if uploaded_file is not None:
 
-    faq = pd.read_csv(uploaded_file)
+# UI
 
-    st.success(
-        "CSV Loaded Successfully!"
+st.title("🤖 UTTU's AI FAQ Agent")
+
+st.caption(
+    "Semantic Search + Gemini AI"
+)
+
+user_question = st.text_input(
+    "Ask a question"
+)
+
+# QUESTION HANDLING
+if user_question:
+
+    # User embedding
+    user_embedding = model.encode(
+        user_question
     )
 
-    faq_questions = faq[
-        "question"
-    ].tolist()
+    # Similarity scores
+    scores = cos_sim(
+        user_embedding,
+        faq_embeddings
+    )[0]
 
-    faq_embeddings = create_embeddings(
-        faq_questions
+    best_match_index = (
+        scores.argmax().item()
     )
 
-    # UI
+    confidence = scores[
+        best_match_index
+    ].item()
 
-    st.title(
-        "🤖 UTTU's AI FAQ Agent"
-    )
+    # Confidence threshold
+    if confidence < 0.5:
 
-    st.caption(
-        "Semantic Search + Gemini AI"
-    )
-
-    user_question = st.text_input(
-        "Ask a question"
-    )
-
-    if user_question:
-
-        # User embedding
-        user_embedding = model.encode(
-            user_question
+        st.error(
+            "Sorry, I couldn't find a relevant answer."
         )
 
-        # Similarity scores
-        scores = cos_sim(
-            user_embedding,
-            faq_embeddings
-        )[0]
+    else:
 
-        best_match_index = (
-            scores.argmax().item()
-        )
-
-        confidence = scores[
+        answer = faq.iloc[
             best_match_index
-        ].item()
+        ]["answer"]
 
-        if confidence < 0.5:
+        # Default answer
+        final_answer = answer
 
-            st.error(
-                "Sorry, I couldn't find a relevant answer."
-            )
+        # Gemini Enhancement
+        if gemini_enabled:
 
-        else:
-
-            answer = faq.iloc[
-                best_match_index
-            ]["answer"]
-
-            # GEMINI REWRITE
-
-            gemini_response = (
-                gemini_model.generate_content(
-                    f"""
-                    Rewrite this FAQ answer in a friendly and professional way.
-
-                    FAQ Answer:
-                    {answer}
-
-                    Keep the meaning exactly the same.
-                    Do not add any new information.
-                    """
-                )
-            )
             try:
 
-                gemini_response = gemini_model.generate_content(
-                f"""
-                Rewrite the following FAQ answer in a friendly and professional tone.
+                gemini_response = (
+                    gemini_model.generate_content(
+                        f"""
+                        Rewrite the following FAQ answer in a friendly and professional tone.
 
-                FAQ Answer:
-                {answer}
+                        FAQ Answer:
+                        {answer}
 
-                Rules:
-                - Return ONLY one rewritten answer.
-                - Do not provide multiple options.
-                - Do not use bullet points.
-                - Do not add new information.
-                - Keep the meaning exactly the same.
-                """
-)
-            
+                        Rules:
+                        - Return ONLY one rewritten answer.
+                        - Do not provide multiple options.
+                        - Do not use bullet points.
+                        - Do not add new information.
+                        - Keep the meaning exactly the same.
+                        """
+                    )
+                )
 
-                final_answer = gemini_response.text
+                final_answer = (
+                    gemini_response.text
+                )
 
             except Exception:
-
                 final_answer = answer
-            st.success(
-                final_answer
-            )
 
-            st.write(
-                f"Confidence Score: {confidence:.2f}"
-            )
+        st.success(final_answer)
 
-            # Save answer to history
+        st.write(
+            f"Confidence Score: {confidence:.2f}"
+        )
 
-            st.session_state.chat_history.append(
-                {
-                    "question": user_question,
-                    "answer": final_answer,
-                }
-            )
-
-else:
-
-    st.info(
-        "Please upload a FAQ CSV file to begin."
-    )
+        # Save to history
+        st.session_state.chat_history.append(
+            {
+                "question": user_question,
+                "answer": final_answer,
+            }
+        )
 
 
 # CHAT HISTORY
 
 if st.session_state.chat_history:
 
-    st.subheader(
-        "Chat History"
-    )
+    st.subheader("Chat History")
 
-    for chat in (
-        st.session_state.chat_history
-    ):
+    for chat in st.session_state.chat_history:
 
-        with st.chat_message(
-            "user"
-        ):
+        with st.chat_message("user"):
             st.write(
                 chat["question"]
             )
 
-        with st.chat_message(
-            "assistant"
-        ):
+        with st.chat_message("assistant"):
             st.write(
                 chat["answer"]
             )
