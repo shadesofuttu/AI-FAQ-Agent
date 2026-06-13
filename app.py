@@ -6,8 +6,7 @@ from dotenv import load_dotenv
 from sentence_transformers import SentenceTransformer
 from sentence_transformers.util import cos_sim
 
-import google.generativeai as genai
-
+from google import genai
 
 # GEMINI CONFIG
 
@@ -75,7 +74,7 @@ faq_embeddings = create_embeddings(
 
 # UI
 
-st.title("🤖 UTTU's AI FAQ Agent")
+st.title("🤖 SEMATIC SEARCH AI FAQ Agent")
 
 st.caption(
     "Semantic Search + Gemini AI"
