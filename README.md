@@ -1,8 +1,12 @@
-# 🤖 AI FAQ Agent
+# 🤖 SEMATIC SEARCH AI FAQ Agent
 
 An AI-powered FAQ chatbot built using Python, Streamlit, Sentence Transformers, and Google Gemini.
 
 The application uses Semantic Search to find the most relevant answer from a FAQ dataset and then enhances the response using Gemini AI to make it more natural and user-friendly.
+
+---
+# LIVE DEMO:
+https://ai-faq-agent-und9f2dmsgvf8w4xysxdyd.streamlit.app/
 
 ---
 
