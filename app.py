@@ -6,8 +6,7 @@ from dotenv import load_dotenv
 from sentence_transformers import SentenceTransformer
 from sentence_transformers.util import cos_sim
 
-from google import genai
-
+import google.generativeai as genai
 # GEMINI CONFIG
 
 load_dotenv()
