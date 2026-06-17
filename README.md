@@ -18,7 +18,7 @@ https://ai-faq-agent-und9f2dmsgvf8w4xysxdyd.streamlit.app/
 
 ### Generated Response 
 
-![Question](Screenshots/Queries_results.png)
+![Question](Screenshots/Queries.png)
 
 
 
