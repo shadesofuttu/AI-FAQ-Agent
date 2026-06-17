@@ -73,7 +73,7 @@ faq_embeddings = create_embeddings(
 
 # UI
 
-st.title("🤖 SEMATIC SEARCH AI FAQ Agent")
+st.title("🤖 SEMANTIC SEARCH AI FAQ Agent")
 
 st.caption(
     "Semantic Search + Gemini AI"
