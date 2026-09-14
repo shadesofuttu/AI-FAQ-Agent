@@ -139,7 +139,6 @@ Chat History
 - API Handling
 - Streamlit Development
 - Cloud Deployment
-- Git & GitHub
 
 ---
 ## 👨‍💻 Author
