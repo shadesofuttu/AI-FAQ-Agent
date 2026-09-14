@@ -146,4 +146,4 @@ Chat History
 
 **Utkarsh**
 
-Built as a hands-on AI/ML learning project to explore Semantic Search, Embeddings, Streamlit, GitHub, and LLM Integration.
+Built as a hands-on AI/ML learning project to explore Semantic Search, Embeddings, Streamlit, GitHub, and LLM Integration .
